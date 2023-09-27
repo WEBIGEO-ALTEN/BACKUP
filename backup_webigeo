@@ -1,0 +1,59 @@
+#!/bin/bash
+
+mkdir ~/BACKUP
+cd ~/BACKUP
+
+# A) installation velero pour backup
+
+##  wget https://github.com/vmware-tanzu/velero/releases/download/v1.10.0/velero-v1.10.0-linux-amd64.tar.gz
+##  tar -zxvf velero-v1.10.0-linux-amd64.tar.gz
+##  sudo mv velero-v1.10.0-linux-amd64/velero /usr/local/bin/
+
+##  velero backup create datascientest-backup
+
+
+#B) mise en place de la sauvegarde
+
+# Désinstallation k3S sans ETCD
+
+
+##  /usr/local/bin/k3s-uninstall.sh
+
+#Nous allons installer un cluster K3s avec une base de données ETCD
+
+
+##  curl -sfL https://get.k3s.io | K3S_TOKEN=SECRET sh -s - server --cluster-init
+
+##  sudo chmod 644 /etc/rancher/k3s/k3s.yaml
+
+mkdir ~/BACKUP/backup
+sudo k3s etcd-snapshot save --etcd-snapshot-dir=~/BACKUP/backup
+ls ~/BACKUP/backup
+
+#Si vous avez un souci de certificat non-présent que vous renvoie la commande de sauvegarde de la base de données ETCD, vous pouvez les copier depuis le ré>
+
+mkdir -p /home/ubuntu/.rancher/k3s/server/tls/etcd/  # création du répertoire dans lequel k3s ira cherher les certificats
+sudo cat /var/lib/rancher/k3s/server/tls/client-ca.crt > /home/ubuntu/.rancher/k3s/server/tls/etcd/client.crt
+sudo cat /var/lib/rancher/k3s/server/tls/client-ca.crt > /home/ubuntu/.rancher/k3s/server/tls/etcd/client.crt
+sudo cat /var/lib/rancher/k3s/server/tls/client-ca.key > /home/ubuntu/.rancher/k3s/server/tls/etcd/client.key
+
+#Nous pouvons également afficher la liste des backups présents dans ce répertoire avec le client k3s de la façon suivante :
+
+#sudo k3s etcd-snapshot ls --etcd-snapshot-dir=~/BACKUP/backup
+
+cd ~/BACKUP
+touch file.txt
+git init
+cp ~/backup_webigeo ~/BACKUP/backup_webigeo
+git add .
+git commit -m "latest"
+git branch -M main
+git remote add origin https://github.com/WEBIGEO-ALTEN/BACKUP.git
+git pull --allow-unrelated-histories origin main
+git push --force origin main
+#git push origin main
+
+sudo rm -rf  ~/BACKUP/.git
+sudo rm -r  ~/BACKUP    
+#rm -r /usr/local/bin/velero-v1.10.0-linux-amd64/velero
+
